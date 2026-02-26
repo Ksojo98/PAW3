@@ -109,13 +109,13 @@ public class RestProvider : IRestProvider
 		}
 	}
 
-	/// <summary>
-	/// Deletes a resource asynchronously.
-	/// </summary>
-	/// <param name="endpoint">The endpoint for the DELETE request.</param>
-	/// <param name="id">The ID of the resource to delete.</param>
-	/// <returns>A task that represents the asynchronous operation, containing the response as a string.</returns>
-	public async Task<string> DeleteAsync(string endpoint, string id)
+    /// <summary>
+    /// Deletes a resource asynchronously.
+    /// </summary>
+    /// <param name="endpoint">The endpoint for the DELETE request.</param>
+    /// <param name="id">The ID of the resource to delete.</param>
+    /// <returns>A task that represents the asynchronous operation, containing the response as a string.</returns>
+    /*public async Task<string> DeleteAsync(string endpoint, string id)
 	{
 		try
 		{
@@ -128,5 +128,21 @@ public class RestProvider : IRestProvider
 		{
 			throw RestProviderHelpers.ThrowError(endpoint, ex);
 		}
-	}
+	}*/
+    public async Task<string> DeleteAsync(string endpoint, string id)
+    {
+        try
+        {
+            var client = new HttpClient();
+
+            var response = await client.DeleteAsync($"{endpoint}/{id}");
+
+            var result = await response.Content.ReadAsStringAsync();
+            return result;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Error calling DELETE {endpoint}/{id}", ex);
+        }
+    }
 }
