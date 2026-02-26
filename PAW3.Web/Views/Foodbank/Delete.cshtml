@@ -1,1 +1,90 @@
-﻿
+﻿@model FoodBankViewModel
+
+@{
+    ViewData["Title"] = "Delete FoodItem";
+}
+
+<div class="content-card">
+    <div class="page-header">
+        <h1><i class="fas fa-trash-alt text-danger me-2"></i>Delete FoodItem</h1>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back to List
+        </a>
+    </div>
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>@ViewBag.Error
+        </div>
+    }
+
+    <div class="alert alert-warning" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <strong>Warning:</strong> Are you sure you want to delete this FoodItem? This action cannot be undone.
+    </div>
+
+    <dl class="row">
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.FoodItemId)</dt>
+        <dd class="col-sm-9"><strong>@Html.DisplayFor(model => model.FoodItemId)</strong></dd>
+
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Name)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.Name)</dd>
+
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Category)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.Category)</dd>
+
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Brand)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.Brand)</dd>
+
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Description)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.Description)</dd>
+
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Price)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.Price)</dd>
+
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Unit)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.Unit)</dd>
+
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.QuantityInStock)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.QuantityInStock)</dd>
+
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.ExpirationDate)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.ExpirationDate)</dd>
+
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.IsPerishable)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.IsPerishable)</dd>
+
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.CaloriesPerServing)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.CaloriesPerServing)</dd>
+
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Ingredients)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.Ingredients)</dd>
+
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Barcode)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.Barcode)</dd>
+
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.Supplier)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.Supplier)</dd>
+
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.DateAdded)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.DateAdded)</dd>
+
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.IsActive)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.IsActive)</dd>
+
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.RoleId)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.RoleId)</dd>
+
+    </dl>
+
+    <form asp-action="Delete" class="mt-4">
+        <input type="hidden" name="id" value="@Model.FoodItemId" />
+        <button type="submit" class="btn btn-danger me-2">
+            <i class="fas fa-trash me-2"></i>Delete FoodItem
+        </button>
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-times me-2"></i>Cancel
+        </a>
+    </form>
+</div>
