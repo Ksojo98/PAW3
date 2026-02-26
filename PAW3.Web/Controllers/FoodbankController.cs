@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using PAW3.Architecture;
 using PAW3.Architecture.Providers;
 using PAW3.Web.Filters;
@@ -137,22 +137,43 @@ public class FoodbankController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(FoodBankViewModel item)
     {
+        if (!ModelState.IsValid)
+            return View(item);
         try
         {
-            if (ModelState.IsValid)
+            //aca mandamos un payload para ayudar al FE con la carga de datos
+            var endpoint = $"{_apiBaseUrl}/FoodItemApi";
+            var apiPayload = new
             {
-                var endpoint = $"{_apiBaseUrl}/FoodItemApi";
-                var json = JsonSerializer.Serialize(item);
-                await _restProvider.PostAsync(endpoint, json);
-                return RedirectToAction(nameof(Index));
-            }
+                name = item.Name,
+                category = item.Category,
+                brand = item.Brand,
+                description = item.Description,
+                price = item.Price,
+                unit = item.Unit,
+                quantityInStock = item.QuantityInStock,
+                expirationDate = item.ExpirationDate?.ToString("yyyy-MM-dd"),
+                isPerishable = item.IsPerishable,
+                caloriesPerServing = item.CaloriesPerServing,
+                ingredients = item.Ingredients,
+                barcode = item.Barcode,
+                supplier = item.Supplier,
+                dateAdded = DateTime.UtcNow,
+                isActive = item.IsActive,
+                roleId = item.RoleId == 0 ? 1 : item.RoleId
+            };
+
+            var json = JsonSerializer.Serialize(apiPayload);
+
+            await _restProvider.PostAsync(endpoint, json);
+
+            return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)
         {
             ModelState.AddModelError("", $"Error creating the food item: {ex.Message}");
+            return View(item);
         }
-
-        return View(item);
     }
 
     public async Task<IActionResult> Edit(int id)
