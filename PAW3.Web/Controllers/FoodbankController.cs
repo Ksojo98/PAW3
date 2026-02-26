@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using PAW3.Architecture;
 using PAW3.Architecture.Providers;
 using PAW3.Core.Services;
+using PAW3.Data.Foodbankdb.Models;
+using PAW3.Models.DTO;
 using PAW3.Web.Filters;
 using PAW3.Web.Models.ViewModels;
 
@@ -21,16 +23,24 @@ public class FoodbankController : Controller
         _apiBaseUrl = _configuration["ApiSettings:BaseUrl"] ?? "https://localhost:7180/api";
     }
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index([FromServices] IEntityOperationService entityOperationService)
     {
         try
         {
-            return View();
+            var endpoint = $"{_apiBaseUrl}/FoodItemApi";
+            var response = await _restProvider.GetAsync(endpoint, null);
+            var foodItems = JsonProvider.DeserializeSimple<List<FoodItem>>(response);
+            var vm = new FoodBankViewModel
+            {
+                foodItems =  foodItems;
+            };
+            //entityOperationService.SumEach([.. foodItems.Products.Select(x => x.Rating ?? 0.0M)], 0.5M);
+            return View(vm);
         }
         catch (Exception ex)
         {
-            ViewBag.Error = $"Error loading the food items: {ex.Message}";
-            return View();
+            ViewBag.Error = $"Error loading products: {ex.Message}";
+            return View(new ProductDtoViewModel());
         }
     }
 
