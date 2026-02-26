@@ -54,7 +54,7 @@ public class FoodbankController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(FoodItemViewModel product)
+    public async Task<IActionResult> Create(FoodBankViewModel product)
     {
         try
         {
@@ -86,7 +86,7 @@ public class FoodbankController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, FoodItemViewModel product)
+    public async Task<IActionResult> Edit(int id, FoodBankViewModel product)
     {
         try
         {
