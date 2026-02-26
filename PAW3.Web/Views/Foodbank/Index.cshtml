@@ -25,18 +25,139 @@
         </div>
     }
 
+    <form method="get" asp-action="Index" asp-controller="Foodbank" class="mb-4">
+        <div class="row g-2">
+
+            <div class="col-md-3">
+                <input name="name" class="form-control" placeholder="Name" value="@Context.Request.Query["name"]" />
+            </div>
+
+            <div class="col-md-3">
+                <input name="category" class="form-control" placeholder="Category" value="@Context.Request.Query["category"]" />
+            </div>
+
+            <div class="col-md-3">
+                <input name="brand" class="form-control" placeholder="Brand" value="@Context.Request.Query["brand"]" />
+            </div>
+
+            <div class="col-md-3">
+                <input name="description" class="form-control" placeholder="Description" value="@Context.Request.Query["description"]" />
+            </div>
+
+            <div class="col-md-2">
+                <input name="price" type="number" step="0.01" class="form-control" placeholder="Price" value="@Context.Request.Query["price"]" />
+            </div>
+
+            <div class="col-md-2">
+                <input name="unit" class="form-control" placeholder="Unit" value="@Context.Request.Query["unit"]" />
+            </div>
+
+            <div class="col-md-2">
+                <input name="quantityInStock" type="number" class="form-control" placeholder="Stock" value="@Context.Request.Query["quantityInStock"]" />
+            </div>
+
+            <div class="col-md-2">
+                <input name="expirationDate" type="date" class="form-control" value="@Context.Request.Query["expirationDate"]" />
+            </div>
+
+            <div class="col-md-2">
+                <select name="isPerishable" class="form-control">
+                    <option value="">-- Perishable? --</option>
+                    @if (Context.Request.Query["isPerishable"] == "true")
+                    {
+                        <option value="true" selected>Yes</option>
+                    }
+                    else
+                    {
+                        <option value="true">Yes</option>
+                    }
+
+                    @if (Context.Request.Query["isPerishable"] == "false")
+                    {
+                        <option value="false" selected>No</option>
+                    }
+                    else
+                    {
+                        <option value="false">No</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <input name="caloriesPerServing" type="number" class="form-control" placeholder="Calories" value="@Context.Request.Query["caloriesPerServing"]" />
+            </div>
+
+            <div class="col-md-3">
+                <input name="ingredients" class="form-control" placeholder="Ingredients" value="@Context.Request.Query["ingredients"]" />
+            </div>
+
+            <div class="col-md-3">
+                <input name="barcode" class="form-control" placeholder="Barcode" value="@Context.Request.Query["barcode"]" />
+            </div>
+
+            <div class="col-md-3">
+                <input name="supplier" class="form-control" placeholder="Supplier" value="@Context.Request.Query["supplier"]" />
+            </div>
+
+            <div class="col-md-2">
+                <input name="dateAdded" type="date" class="form-control" value="@Context.Request.Query["dateAdded"]" />
+            </div>
+
+            <div class="col-md-2">
+                <select name="isActive" class="form-control">
+                    <option value="">-- Active? --</option>
+                    @if (Context.Request.Query["isActive"] == "true")
+                    {
+                        <option value="true" selected>Yes</option>
+                    }
+                    else
+                    {
+                        <option value="true">Yes</option>
+                    }
+
+                    @if (Context.Request.Query["isActive"] == "false")
+                    {
+                        <option value="false" selected>No</option>
+                    }
+                    else
+                    {
+                        <option value="false">No</option>
+                    }
+                </select>
+            </div>
+
+        
+
+        </div>
+        <div class="col-md-2 ms-auto d-flex align-items-end">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-search me-2"></i>Search
+            </button>
+        </div>
+    </form>
+
     @if (Model != null && Model.Any())
     {
         <div class="table-responsive">
             <table class="table table-striped table-hover">
                 <thead>
                     <tr>
+                        <th>Id</th>
                         <th>Name</th>
                         <th>Category</th>
                         <th>Brand</th>
+                        <th>Description</th>
                         <th>Price</th>
+                        <th>Unit</th>
                         <th>Stock</th>
                         <th>Expiration</th>
+                        <th>Perishable</th>
+                        <th>Calories</th>
+                        <th>Ingredients</th>
+                        <th>Barcode</th>
+                        <th>Supplier</th>
+                        <th>Date Added</th>
+                        <th>Active</th>
                         <th class="text-end">Actions</th>
                     </tr>
                 </thead>
@@ -44,17 +165,33 @@
                     @foreach (var item in Model)
                     {
                         <tr>
-                            <td><strong>@item.Name</strong></td>
+                            <td><strong>@item.FoodItemId</strong></td>
+                            <td>@item.Name</td>
                             <td>@item.Category</td>
                             <td>@item.Brand</td>
+                            <td title="@item.Description">
+                                @(item.Description.Length > 50 ? item.Description.Substring(0, 50) + "..." : item.Description)
+                            </td>
                             <td>@item.Price</td>
+                            <td>@item.Unit</td>
                             <td>
                                 <span class="badge bg-info text-dark">
                                     @item.QuantityInStock
                                 </span>
                             </td>
+                            <td>@(item.ExpirationDate?.ToShortDateString() ?? "-")</td>
                             <td>
-                                @(item.ExpirationDate?.ToShortDateString() ?? "-")
+                                @(item.IsPerishable ? "Yes" : "No")
+                            </td>
+                            <td>@item.CaloriesPerServing</td>
+                            <td title="@item.Ingredients">
+                                @(item.Ingredients.Length > 40 ? item.Ingredients.Substring(0, 40) + "..." : item.Ingredients)
+                            </td>
+                            <td>@item.Barcode</td>
+                            <td>@item.Supplier</td>
+                            <td>@item.DateAdded.ToShortDateString()</td>
+                            <td>
+                                @(item.IsActive ? "Active" : "Inactive")
                             </td>
                             <td class="text-end">
                                 <div class="action-buttons">
@@ -82,10 +219,12 @@
                 <i class="fas fa-box-open fa-3x"></i>
             </div>
             <h3>No Food Items Found</h3>
-            <p>Get started by creating your first food item.</p>
+            <p>Try adjusting the filters or create a new food item.</p>
             <a asp-action="Create" class="btn btn-primary mt-3">
                 <i class="fas fa-plus me-2"></i>Create Food Item
             </a>
         </div>
     }
 </div>
+
+

@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using PAW3.Architecture;
 using PAW3.Architecture.Providers;
 using PAW3.Web.Filters;
@@ -21,20 +21,83 @@ public class FoodbankController : Controller
         _apiBaseUrl = _configuration["ApiSettings:BaseUrl"] ?? "https://localhost:7180/api";
     }
 
-    public async Task<IActionResult> Index()
+    [HttpGet]
+    public async Task<IActionResult> Index(
+     string? name,
+     string? category,
+     string? brand,
+     string? description,
+     decimal? price,
+     string? unit,
+     int? quantityInStock,
+     DateTime? expirationDate,
+     bool? isPerishable,
+     int? caloriesPerServing,
+     string? ingredients,
+     string? barcode,
+     string? supplier,
+     DateTime? dateAdded,
+     bool? isActive
+ )
     {
         try
         {
             var endpoint = $"{_apiBaseUrl}/FoodItemApi";
             var response = await _restProvider.GetAsync(endpoint, null);
 
-            ViewBag.RawJson = response;
-
-            var items = JsonSerializer.Deserialize<List<FoodBankViewModel>>(response,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+            var items = System.Text.Json.JsonSerializer.Deserialize<List<FoodBankViewModel>>(response,
+                new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })
                 ?? new List<FoodBankViewModel>();
 
-            return View(items);
+            var query = items.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(name))
+                query = query.Where(x => x.Name.Contains(name, StringComparison.OrdinalIgnoreCase));
+
+            if (!string.IsNullOrWhiteSpace(category))
+                query = query.Where(x => x.Category.Contains(category, StringComparison.OrdinalIgnoreCase));
+
+            if (!string.IsNullOrWhiteSpace(brand))
+                query = query.Where(x => x.Brand.Contains(brand, StringComparison.OrdinalIgnoreCase));
+
+            if (!string.IsNullOrWhiteSpace(description))
+                query = query.Where(x => x.Description.Contains(description, StringComparison.OrdinalIgnoreCase));
+
+            if (price.HasValue)
+                query = query.Where(x => x.Price == price.Value);
+
+            if (!string.IsNullOrWhiteSpace(unit))
+                query = query.Where(x => x.Unit.Contains(unit, StringComparison.OrdinalIgnoreCase));
+
+            if (quantityInStock.HasValue)
+                query = query.Where(x => x.QuantityInStock == quantityInStock.Value);
+
+            if (expirationDate.HasValue)
+                query = query.Where(x => x.ExpirationDate.HasValue && x.ExpirationDate.Value.Date == expirationDate.Value.Date);
+
+            if (isPerishable.HasValue)
+                query = query.Where(x => x.IsPerishable == isPerishable.Value);
+
+            if (caloriesPerServing.HasValue)
+                query = query.Where(x => x.CaloriesPerServing == caloriesPerServing.Value);
+
+            if (!string.IsNullOrWhiteSpace(ingredients))
+                query = query.Where(x => x.Ingredients.Contains(ingredients, StringComparison.OrdinalIgnoreCase));
+
+            if (!string.IsNullOrWhiteSpace(barcode))
+                query = query.Where(x => x.Barcode.Contains(barcode, StringComparison.OrdinalIgnoreCase));
+
+            if (!string.IsNullOrWhiteSpace(supplier))
+                query = query.Where(x => x.Supplier.Contains(supplier, StringComparison.OrdinalIgnoreCase));
+
+            if (dateAdded.HasValue)
+                query = query.Where(x => x.DateAdded.Date == dateAdded.Value.Date);
+
+            if (isActive.HasValue)
+                query = query.Where(x => x.IsActive == isActive.Value);
+
+
+            return View(query.ToList());
         }
         catch (Exception ex)
         {
@@ -74,22 +137,43 @@ public class FoodbankController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(FoodBankViewModel item)
     {
+        if (!ModelState.IsValid)
+            return View(item);
         try
         {
-            if (ModelState.IsValid)
+            //aca mandamos un payload para ayudar al FE con la carga de datos
+            var endpoint = $"{_apiBaseUrl}/FoodItemApi";
+            var apiPayload = new
             {
-                var endpoint = $"{_apiBaseUrl}/FoodItemApi";
-                var json = JsonSerializer.Serialize(item);
-                await _restProvider.PostAsync(endpoint, json);
-                return RedirectToAction(nameof(Index));
-            }
+                name = item.Name,
+                category = item.Category,
+                brand = item.Brand,
+                description = item.Description,
+                price = item.Price,
+                unit = item.Unit,
+                quantityInStock = item.QuantityInStock,
+                expirationDate = item.ExpirationDate?.ToString("yyyy-MM-dd"),
+                isPerishable = item.IsPerishable,
+                caloriesPerServing = item.CaloriesPerServing,
+                ingredients = item.Ingredients,
+                barcode = item.Barcode,
+                supplier = item.Supplier,
+                dateAdded = DateTime.UtcNow,
+                isActive = item.IsActive,
+                roleId = item.RoleId == 0 ? 1 : item.RoleId
+            };
+
+            var json = JsonSerializer.Serialize(apiPayload);
+
+            await _restProvider.PostAsync(endpoint, json);
+
+            return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)
         {
             ModelState.AddModelError("", $"Error creating the food item: {ex.Message}");
+            return View(item);
         }
-
-        return View(item);
     }
 
     public async Task<IActionResult> Edit(int id)
