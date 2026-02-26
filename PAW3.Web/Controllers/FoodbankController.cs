@@ -30,7 +30,7 @@ public class FoodbankController : Controller
      decimal? price,
      string? unit,
      int? quantityInStock,
-     DateTime? expirationDate,
+     DateOnly? expirationDate,
      bool? isPerishable,
      int? caloriesPerServing,
      string? ingredients,
@@ -45,8 +45,8 @@ public class FoodbankController : Controller
             var endpoint = $"{_apiBaseUrl}/FoodItemApi";
             var response = await _restProvider.GetAsync(endpoint, null);
 
-            var items = System.Text.Json.JsonSerializer.Deserialize<List<FoodBankViewModel>>(response,
-                new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+            var items = JsonSerializer.Deserialize<List<FoodBankViewModel>>(response,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
                 ?? new List<FoodBankViewModel>();
 
             var query = items.AsQueryable();
@@ -73,7 +73,7 @@ public class FoodbankController : Controller
                 query = query.Where(x => x.QuantityInStock == quantityInStock.Value);
 
             if (expirationDate.HasValue)
-                query = query.Where(x => x.ExpirationDate.HasValue && x.ExpirationDate.Value.Date == expirationDate.Value.Date);
+                query = query.Where(x => x.ExpirationDate.HasValue && x.ExpirationDate.Value == expirationDate.Value);
 
             if (isPerishable.HasValue)
                 query = query.Where(x => x.IsPerishable == isPerishable.Value);
