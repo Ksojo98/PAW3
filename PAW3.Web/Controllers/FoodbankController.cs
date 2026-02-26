@@ -30,7 +30,7 @@ public class FoodbankController : Controller
      decimal? price,
      string? unit,
      int? quantityInStock,
-     DateTime? expirationDate,
+     DateOnly? expirationDate,
      bool? isPerishable,
      int? caloriesPerServing,
      string? ingredients,
@@ -45,8 +45,8 @@ public class FoodbankController : Controller
             var endpoint = $"{_apiBaseUrl}/FoodItemApi";
             var response = await _restProvider.GetAsync(endpoint, null);
 
-            var items = System.Text.Json.JsonSerializer.Deserialize<List<FoodBankViewModel>>(response,
-                new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+            var items = JsonSerializer.Deserialize<List<FoodBankViewModel>>(response,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
                 ?? new List<FoodBankViewModel>();
 
             var query = items.AsQueryable();
@@ -73,7 +73,7 @@ public class FoodbankController : Controller
                 query = query.Where(x => x.QuantityInStock == quantityInStock.Value);
 
             if (expirationDate.HasValue)
-                query = query.Where(x => x.ExpirationDate.HasValue && x.ExpirationDate.Value.Date == expirationDate.Value.Date);
+                query = query.Where(x => x.ExpirationDate.HasValue && x.ExpirationDate.Value == expirationDate.Value);
 
             if (isPerishable.HasValue)
                 query = query.Where(x => x.IsPerishable == isPerishable.Value);
@@ -181,7 +181,7 @@ public class FoodbankController : Controller
         try
         {
             var endpoint = $"{_apiBaseUrl}/FoodItemApi/{id}";
-            var response = await _restProvider.GetAsync(endpoint, id.ToString());
+            var response = await _restProvider.GetAsync(endpoint, null);
 
             var item = JsonSerializer.Deserialize<FoodBankViewModel>(response,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
@@ -198,29 +198,32 @@ public class FoodbankController : Controller
         }
     }
 
+
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, FoodBankViewModel item)
+    public async Task<IActionResult> Edit(FoodBankViewModel item)
     {
         try
         {
-            if (id != item.FoodItemId)
-                return NotFound();
+            if (!ModelState.IsValid)
+                return View(item);
 
-            if (ModelState.IsValid)
+            var endpoint = $"{_apiBaseUrl}/FoodItemApi/{item.FoodItemId}";
+
+            var json = JsonSerializer.Serialize(item, new JsonSerializerOptions
             {
-                var endpoint = $"{_apiBaseUrl}/FoodItemApi/{id}";
-                var json = JsonSerializer.Serialize(item);
-                await _restProvider.PutAsync(endpoint, id.ToString(), json);
-                return RedirectToAction(nameof(Index));
-            }
+                PropertyNamingPolicy = null
+            });
+
+            await _restProvider.PutAsync(endpoint, null, json);
+
+            return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)
         {
             ModelState.AddModelError("", $"Error updating food item: {ex.Message}");
+            return View(item);
         }
-
-        return View(item);
     }
 
     public async Task<IActionResult> Delete(int id)

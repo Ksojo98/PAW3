@@ -13,7 +13,7 @@
         public string Unit { get; set; } = string.Empty;
 
         public int QuantityInStock { get; set; }
-        public DateTime? ExpirationDate { get; set; }
+        public DateOnly? ExpirationDate { get; set; }
 
         public bool IsPerishable { get; set; }
         public int CaloriesPerServing { get; set; }

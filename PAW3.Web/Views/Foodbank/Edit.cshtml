@@ -1,1 +1,94 @@
-﻿
+﻿@model PAW3.Web.Models.ViewModels.FoodBankViewModel
+
+<h2>Edit Food Item</h2>
+
+<form asp-action="Edit" method="post">
+
+    <input type="hidden" asp-for="FoodItemId" />
+
+    <div class="form-group">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Category"></label>
+        <input asp-for="Category" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Brand"></label>
+        <input asp-for="Brand" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Description"></label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Price"></label>
+        <input asp-for="Price" type="number" step="0.01" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Unit"></label>
+        <input asp-for="Unit" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="QuantityInStock"></label>
+        <input asp-for="QuantityInStock" type="number" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ExpirationDate"></label>
+        <input asp-for="ExpirationDate" type="date" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="IsPerishable"></label>
+        <input asp-for="IsPerishable" type="checkbox" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="CaloriesPerServing"></label>
+        <input asp-for="CaloriesPerServing" type="number" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Ingredients"></label>
+        <textarea asp-for="Ingredients" class="form-control"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Barcode"></label>
+        <input asp-for="Barcode" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Supplier"></label>
+        <input asp-for="Supplier" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="DateAdded"></label>
+        <input asp-for="DateAdded" type="date" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="IsActive"></label>
+        <input asp-for="IsActive" type="checkbox" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="RoleId"></label>
+        <input asp-for="RoleId" type="number" class="form-control" />
+    </div>
+
+    <br />
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+
+</form>
