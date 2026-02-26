@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using PAW3.Architecture;
 using PAW3.Architecture.Providers;
-using PAW3.Core.Services;
 using PAW3.Web.Filters;
 using PAW3.Web.Models.ViewModels;
+using System.Text.Json;
 
 namespace PAW3.Web.Controllers;
 
@@ -25,12 +25,21 @@ public class FoodbankController : Controller
     {
         try
         {
-            return View();
+            var endpoint = $"{_apiBaseUrl}/FoodItemApi";
+            var response = await _restProvider.GetAsync(endpoint, null);
+
+            ViewBag.RawJson = response;
+
+            var items = JsonSerializer.Deserialize<List<FoodBankViewModel>>(response,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+                ?? new List<FoodBankViewModel>();
+
+            return View(items);
         }
         catch (Exception ex)
         {
             ViewBag.Error = $"Error loading the food items: {ex.Message}";
-            return View();
+            return View(new List<FoodBankViewModel>());
         }
     }
 
@@ -38,79 +47,116 @@ public class FoodbankController : Controller
     {
         try
         {
-            return View();
+            var endpoint = $"{_apiBaseUrl}/FoodItemApi/{id}";
+            var response = await _restProvider.GetAsync(endpoint, id.ToString());
+
+            var item = JsonSerializer.Deserialize<FoodBankViewModel>(response,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            if (item == null)
+                return NotFound();
+
+            return View(item);
         }
         catch (Exception ex)
         {
-            ViewBag.Error = $"Error loading the food items: {ex.Message}";
+            ViewBag.Error = $"Error loading the food item: {ex.Message}";
             return NotFound();
         }
     }
 
     public IActionResult Create()
     {
-        return View();
+        return View(new FoodBankViewModel());
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(FoodBankViewModel product)
+    public async Task<IActionResult> Create(FoodBankViewModel item)
     {
         try
         {
             if (ModelState.IsValid)
             {
-               
+                var endpoint = $"{_apiBaseUrl}/FoodItemApi";
+                var json = JsonSerializer.Serialize(item);
+                await _restProvider.PostAsync(endpoint, json);
                 return RedirectToAction(nameof(Index));
             }
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError("", $"Error creating the food items: {ex.Message}");
+            ModelState.AddModelError("", $"Error creating the food item: {ex.Message}");
         }
-        return View(product);
+
+        return View(item);
     }
 
     public async Task<IActionResult> Edit(int id)
     {
         try
         {
-            return View();
+            var endpoint = $"{_apiBaseUrl}/FoodItemApi/{id}";
+            var response = await _restProvider.GetAsync(endpoint, id.ToString());
+
+            var item = JsonSerializer.Deserialize<FoodBankViewModel>(response,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            if (item == null)
+                return NotFound();
+
+            return View(item);
         }
         catch (Exception ex)
         {
-            ViewBag.Error = $"Error loading the food items: {ex.Message}";
+            ViewBag.Error = $"Error loading the food item: {ex.Message}";
             return NotFound();
         }
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, FoodBankViewModel product)
+    public async Task<IActionResult> Edit(int id, FoodBankViewModel item)
     {
         try
         {
+            if (id != item.FoodItemId)
+                return NotFound();
+
             if (ModelState.IsValid)
             {
+                var endpoint = $"{_apiBaseUrl}/FoodItemApi/{id}";
+                var json = JsonSerializer.Serialize(item);
+                await _restProvider.PutAsync(endpoint, id.ToString(), json);
                 return RedirectToAction(nameof(Index));
             }
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError("", $"Error updating product: {ex.Message}");
+            ModelState.AddModelError("", $"Error updating food item: {ex.Message}");
         }
-        return View(product);
+
+        return View(item);
     }
 
     public async Task<IActionResult> Delete(int id)
     {
         try
         {
-            return View();
+            var endpoint = $"{_apiBaseUrl}/FoodItemApi/{id}";
+            var response = await _restProvider.GetAsync(endpoint, id.ToString());
+
+            var item = JsonSerializer.Deserialize<FoodBankViewModel>(response,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+
+            if (item == null)
+                return NotFound();
+
+            return View(item);
         }
         catch (Exception ex)
         {
-            ViewBag.Error = $"Error loading the food items: {ex.Message}";
+            ViewBag.Error = $"Error loading the food item: {ex.Message}";
             return NotFound();
         }
     }
@@ -121,13 +167,14 @@ public class FoodbankController : Controller
     {
         try
         {
+            var endpoint = $"{_apiBaseUrl}/FoodItemApi";
+            await _restProvider.DeleteAsync(endpoint, id.ToString());
             return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)
         {
-            ViewBag.Error = $"Error deleting the food items: {ex.Message}";
+            ViewBag.Error = $"Error deleting the food item: {ex.Message}";
             return RedirectToAction(nameof(Delete), new { id });
         }
     }
 }
-
