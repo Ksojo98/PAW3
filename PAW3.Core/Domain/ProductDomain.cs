@@ -11,8 +11,6 @@ namespace PAW3.Core.Domain
     {
         private readonly Product _product;
 
-        public string RatingClass { get; private set; } = "unrated";
-        public string TimeClass { get; private set; } = "old";
 
         public ProductDomain(Product product)
         {
@@ -39,7 +37,7 @@ namespace PAW3.Core.Domain
         {
             var rating = _product.Rating ?? 0;
 
-            RatingClass =
+            _product.RatingClass =
                 rating >= 4 ? "A" :
                 rating >= 3 ? "B" :
                 rating >= 2 ? "C" :
@@ -55,7 +53,7 @@ namespace PAW3.Core.Domain
                 ? double.MaxValue
                 : (DateTime.UtcNow - _product.LastModified.Value).TotalDays;
 
-            TimeClass =
+            _product.TimeClass =
                 daysOld <= 7 ? "new" :
                 daysOld <= 30 ? "recent" :
                 "old";
