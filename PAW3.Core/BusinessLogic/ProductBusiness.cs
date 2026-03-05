@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using PAW3.Models.DTO;
 using PAW3.Models.Entities.Productdb;
+using PAW3.Core.Domain;
 
 namespace PAW3.Core.BusinessLogic;
 
@@ -61,6 +62,12 @@ public class ProductBusiness(IRepositoryProduct repositoryProduct) : IProductBus
 
         if (!hasId && products != null && products.Any())
         {
+            foreach (var product in productDto.Products) {
+                new ProductDomain(product)
+                        .CleanRating()
+                        .ApplyRatingClass()
+                        .ApplyTimeClass();
+            }
             productDto.Summaries.AddRange(products.Select(x => new
             {
                 Id = x.ProductId,
@@ -76,20 +83,6 @@ public class ProductBusiness(IRepositoryProduct repositoryProduct) : IProductBus
                 Count = g.Count()
             })).OrderByDescending(x => x.Count));
 
-            // Big Operation N^2 example
-
-            /*foreach (var item in items)
-            {
-                foreach (var subItem in item)
-                {
-                    productDto.Summaries.Add(new ProductSummary()
-                    {
-                        Id = item.Key,
-                        Name = subItem.Name,
-                        Rating = subItem.Rating
-                    });
-                }
-            }*/
         }
 
         productDto.Products = products;
