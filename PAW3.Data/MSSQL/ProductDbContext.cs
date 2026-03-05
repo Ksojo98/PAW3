@@ -52,6 +52,9 @@ public partial class ProductDbContext : DbContext
             entity.Property(e => e.ModifiedBy).HasMaxLength(255);
         };
         modelBuilder.Entity<Category>(buildAction);
+        modelBuilder.Entity<Product>().Ignore(p => p.RatingClass);
+        modelBuilder.Entity<Product>().Ignore(p => p.TimeClass);
+
 
         modelBuilder.Entity<Component>(entity =>
         {
