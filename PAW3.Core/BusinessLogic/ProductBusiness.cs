@@ -1,10 +1,4 @@
-﻿using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using PAW3.Data.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using PAW3.Data.Repositories;
 using PAW3.Models.DTO;
 using PAW3.Models.Entities.Productdb;
 using PAW3.Core.Domain;
@@ -49,7 +43,7 @@ public class ProductBusiness(IRepositoryProduct repositoryProduct) : IProductBus
         var product = await repositoryProduct.FindAsync(id);
         return await repositoryProduct.DeleteAsync(product);
     }
-
+    
     /// </inheritdoc>
     public async Task<ProductDTO> GetProducts(int? id)
     {
@@ -60,32 +54,46 @@ public class ProductBusiness(IRepositoryProduct repositoryProduct) : IProductBus
             ? await repositoryProduct.ReadAsync()
             : [await repositoryProduct.FindAsync((int)id)];
 
-        if (!hasId && products != null && products.Any())
+        if (products == null)
         {
-            foreach (var product in productDto.Products) {
-                new ProductDomain(product)
-                        .CleanRating()
-                        .ApplyRatingClass()
-                        .ApplyTimeClass();
-            }
-            productDto.Summaries.AddRange(products.Select(x => new
-            {
-                Id = x.ProductId,
-                Name = x.ProductName,
-                x.Rating
-            })
-            .GroupBy(y => y.Rating)
-            .SelectMany(g => g.Select(sub => new ProductSummary
-            {
-                Id = sub.Id,
-                Name = sub.Name,
-                Rating = sub.Rating,
-                Count = g.Count()
-            })).OrderByDescending(x => x.Count));
-
+            productDto.Products = [];
+            return productDto;
         }
 
-        productDto.Products = products;
+        var productList = products.Where(p => p != null).ToList();
+
+        if (!productList.Any())
+        {
+            productDto.Products = productList;
+            return productDto;
+        }
+
+        var domain = new ProductDomain();
+        productList = domain.ApplyBusinessRules(productList).ToList();
+
+        productList = new ProductFluent(productList)
+            .ApplyRatingClass()
+            .ApplyTimeClass()
+            .Build()
+            .ToList();
+
+        if (!hasId)
+        {
+            productDto.Summaries.AddRange(
+                productList
+                    .GroupBy(x => new { x.RatingClass, x.TimeClass })
+                    .Select(g => new ProductSummary
+                    {
+                        RatingClass = g.Key.RatingClass,
+                        TimeClass = g.Key.TimeClass,
+                        Count = g.Count()
+                    })
+                    .OrderBy(x => x.RatingClass)
+                    .ThenBy(x => x.TimeClass)
+            );
+        }
+
+        productDto.Products = productList;
         return productDto;
     }
 }

@@ -47,7 +47,18 @@
                 <span class="text-muted">Not rated</span>
             }
         </dd>
-        
+        <dt class="col-sm-3">Rating Class</dt>
+        <dd class="col-sm-9">
+            <span class="badge bg-primary">@Model.RatingClass</span>
+        </dd>
+
+        <dt class="col-sm-3">Time</dt>
+        <dd class="col-sm-9">@Model.Time</dd>
+
+        <dt class="col-sm-3">Time Class</dt>
+        <dd class="col-sm-9">
+            <span class="badge bg-secondary">@Model.TimeClass</span>
+        </dd>
         <dt class="col-sm-3">@Html.DisplayNameFor(model => model.CategoryId)</dt>
         <dd class="col-sm-9">@Html.DisplayFor(model => model.CategoryId)</dd>
         

@@ -32,6 +32,11 @@
                         <th>@Html.DisplayNameFor(model => model.Products.FirstOrDefault().Description)</th>
                         <th>@Html.DisplayNameFor(model => model.Products.FirstOrDefault().Rating)</th>
                         <th>@Html.DisplayNameFor(model => model.Products.FirstOrDefault().CategoryId)</th>
+                        <th>@Html.DisplayNameFor(model => model.Products.FirstOrDefault().Rating)</th>
+                        <th>Rating Class</th>
+                        <th>Time</th>
+                        <th>Time Class</th>
+                        <th>@Html.DisplayNameFor(model => model.Products.FirstOrDefault().CategoryId)</th>
                         <th class="text-end">Actions</th>
                     </tr>
                 </thead>
@@ -49,6 +54,17 @@
                                         <i class="fas fa-star me-1"></i>@Html.DisplayFor(modelItem => item.Rating)
                                     </span>
                                 }
+                                else
+                                {
+                                    <span class="text-muted">No rating</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="badge bg-primary">@item.RatingClass</span>
+                            </td>
+                            <td>@item.Time</td>
+                            <td>
+                                <span class="badge bg-secondary">@item.TimeClass</span>
                             </td>
                             <td>@Html.DisplayFor(modelItem => item.CategoryId)</td>
                             <td class="text-end">

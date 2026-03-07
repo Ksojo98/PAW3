@@ -1,64 +1,34 @@
 ﻿using PAW3.Models.Entities.Productdb;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PAW3.Core.Domain
 {
     public class ProductDomain
     {
-        private readonly Product _product;
-
-
-        public ProductDomain(Product product)
+        public IEnumerable<Product> ApplyBusinessRules(IEnumerable<Product> products)
         {
-            _product = product ?? throw new ArgumentNullException(nameof(product));
+            foreach (var product in products)
+            {
+                product.Rating = product.Rating ?? 3;
+                product.RatingClass = GetRatingClass(product.Rating.Value);
+                product.TimeClass = GetTimeClass(product.Time);
+
+                yield return product;
+            }
         }
 
-        public ProductDomain ApplyRules()
-            => CleanRating()
-               .ApplyRatingClass()
-               .ApplyTimeClass();
-
-        public ProductDomain CleanRating()
+        private string GetRatingClass(decimal rating)
         {
-            _product.Rating = !_product.Rating.HasValue
-                ? 0
-                : _product.Rating < 0 ? 0
-                : _product.Rating > 5 ? 5
-                : _product.Rating;
-
-            return this;
+            if (rating < 2) return "D";
+            if (rating >= 2 && rating < 3.5m) return "C";
+            if (rating >= 3.6m && rating < 4.5m) return "B";
+            return "A";
         }
 
-        public ProductDomain ApplyRatingClass()
+        private string GetTimeClass(int time)
         {
-            var rating = _product.Rating ?? 0;
-
-            _product.RatingClass =
-                rating >= 4 ? "A" :
-                rating >= 3 ? "B" :
-                rating >= 2 ? "C" :
-                rating >= 1 ? "D" :
-                "unrated";
-
-            return this;
-        }
-
-        public ProductDomain ApplyTimeClass()
-        {
-            var daysOld = !_product.LastModified.HasValue
-                ? double.MaxValue
-                : (DateTime.UtcNow - _product.LastModified.Value).TotalDays;
-
-            _product.TimeClass =
-                daysOld <= 7 ? "new" :
-                daysOld <= 30 ? "recent" :
-                "old";
-
-            return this;
+            if (time <= 15) return "A";
+            if (time <= 25) return "B";
+            return "C";
         }
     }
 }

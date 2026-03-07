@@ -54,6 +54,7 @@ public partial class ProductDbContext : DbContext
         modelBuilder.Entity<Category>(buildAction);
         modelBuilder.Entity<Product>().Ignore(p => p.RatingClass);
         modelBuilder.Entity<Product>().Ignore(p => p.TimeClass);
+        modelBuilder.Entity<Product>().Ignore(p => p.Time);
 
 
         modelBuilder.Entity<Component>(entity =>

@@ -1,86 +1,139 @@
 ﻿using Moq;
 using PAW3.Core.BusinessLogic;
+using PAW3.Core.Domain;
 using PAW3.Data.Repositories;
-using PAW3.Models.DTO;
-using Shouldly;
-using PAW3.Architecture.Extensions;
 using PAW3.Models.Entities.Productdb;
+using Task = System.Threading.Tasks.Task;
 
 namespace PAW3.CoreTests;
 
 public class ProductTests
 {
-    private readonly IEnumerable<Product > products =
-    [
-        new Product { ProductId = 1, ProductName = "A", Rating = 5 },
-        new Product { ProductId = 2, ProductName = "B", Rating = 5 },
-        new Product { ProductId = 3, ProductName = "C", Rating = 4 }
-    ];
-
-    private readonly List<ProductSummary> expectedSummaries =
-    [
-        new ProductSummary { Rating = 5, Count = 2 },
-        new ProductSummary { Rating = 4, Count = 1 },
-        new ProductSummary { Rating = 3, Count = 1 }
-    ];
-
-    private readonly Mock<IRepositoryProduct> _repositoryProductMock = new();
-    private readonly Mock<IProductBusiness> _productBusinessMock = new();
+    private readonly Mock<IRepositoryProduct> _repositoryProductMock;
     private readonly IProductBusiness _business;
 
     public ProductTests()
     {
         _repositoryProductMock = new Mock<IRepositoryProduct>();
-        _productBusinessMock = new Mock<IProductBusiness>();
         _business = new ProductBusiness(_repositoryProductMock.Object);
     }
 
     [Fact]
-    public async System.Threading.Tasks.Task GetProducts_WhenIdIsNull_ShouldGroupAndSummarize()
+    public void ApplyBusinessRules_Should_Assign_Default_Rating_When_Null()
     {
-        // Arrange
-        var fakeProductDto = new ProductDTO
+        var products = new List<Product>
         {
-            Products = this.products,
-            Summaries = this.expectedSummaries
+            new Product { ProductId = 1, ProductName = "A", Rating = null, LastModified = DateTime.Now.AddDays(-10) }
         };
 
-        _repositoryProductMock
-            .Setup(rp => rp.ReadAsync())
-            .ReturnsAsync(this.products);
+        var domain = new ProductDomain();
 
-        _productBusinessMock
-            .Setup(pb => pb.GetProducts(null))
-            .ReturnsAsync(fakeProductDto);
+        var result = domain.ApplyBusinessRules(products).First();
 
-        // Act
-        var result = await _business.GetProducts(null);
-
-        // Assert
-        _repositoryProductMock.Verify(rp => rp.ReadAsync(), Times.Once);
-        _repositoryProductMock.Verify(rp => rp.FindAsync(It.IsAny<int>()), Times.Never);
-                
-        //Should.Equals(result.Products.Count(), this.products.Count());
-
-        Assert.NotNull(result);
-        Assert.True(result.Products.Count() == this.products.Count());
-        Assert.NotEmpty(result.Summaries);
-        Assert.Equal(this.expectedSummaries.Count(), result.Summaries.Count);
-        //Assert.Equal(2, result.Summaries.FirstOrDefault().Count);
+        Assert.Equal(3, result.Rating);
     }
 
     [Fact]
-    public void GetId_WhenCallingGenerateIdFromNow_ShouldRecieveGeneratedId()
+    public void ApplyBusinessRules_Should_Assign_RatingClass_C_When_Rating_Is_3()
     {
-        // Arrange 
-        var dateTimeNow = DateTime.Now;
+        var products = new List<Product>
+        {
+            new Product { ProductId = 1, ProductName = "A", Rating = 3, LastModified = DateTime.Now.AddDays(-10) }
+        };
 
-        // Act
-        var generatedId = dateTimeNow.GenerateIdFromNow();
+        var domain = new ProductDomain();
 
-        // Assert
-        Assert.True(generatedId > 0);
-        Assert.IsAssignableFrom<int>(generatedId);
-        Assert.InRange(generatedId, 0, int.MaxValue);
+        var result = domain.ApplyBusinessRules(products).First();
+
+        Assert.Equal("C", result.RatingClass);
+    }
+
+    [Fact]
+    public void ApplyBusinessRules_Should_Assign_TimeClass_A_When_Time_Is_10()
+    {
+        var products = new List<Product>
+        {
+            new Product { ProductId = 1, ProductName = "A", Rating = 4, LastModified = DateTime.Now.AddDays(-10) }
+        };
+
+        var domain = new ProductDomain();
+
+        var result = domain.ApplyBusinessRules(products).First();
+
+        Assert.Equal("A", result.TimeClass);
+    }
+
+    [Fact]
+    public async Task GetProducts_WhenIdIsNull_Should_Group_By_RatingClass_And_TimeClass()
+    {
+        var products = new List<Product>
+    {
+        new Product { ProductId = 1, ProductName = "A", Rating = null, LastModified = DateTime.Now.AddDays(-10) },
+        new Product { ProductId = 2, ProductName = "B", Rating = 4.7m, LastModified = DateTime.Now.AddDays(-20) },
+        new Product { ProductId = 3, ProductName = "C", Rating = 4.8m, LastModified = DateTime.Now.AddDays(-30) }
+    };
+
+        _repositoryProductMock
+            .Setup(rp => rp.ReadAsync())
+            .ReturnsAsync(products);
+
+        var result = await _business.GetProducts(null);
+
+        Assert.NotNull(result);
+        Assert.Equal(3, result.Products.Count());
+        Assert.NotEmpty(result.Summaries);
+        Assert.Contains(result.Summaries, x => x.RatingClass == "A" && x.TimeClass == "B");
+        Assert.Contains(result.Summaries, x => x.RatingClass == "C" && x.TimeClass == "A");
+    }
+    [Theory]
+    [InlineData(1.5, "D")]
+    [InlineData(2.0, "C")]
+    [InlineData(3.0, "C")]
+    [InlineData(4.0, "B")]
+    [InlineData(4.5, "A")]
+    [InlineData(5.0, "A")]
+    public void ApplyBusinessRules_Should_Assign_Correct_RatingClass(decimal rating, string expectedClass)
+    {
+        var products = new List<Product>
+    {
+        new Product
+        {
+            ProductId = 1,
+            ProductName = "Producto Test",
+            Rating = rating,
+            LastModified = DateTime.Now.AddDays(-10)
+        }
+    };
+
+        var domain = new ProductDomain();
+
+        var result = domain.ApplyBusinessRules(products).First();
+
+        Assert.Equal(expectedClass, result.RatingClass);
+    }
+    [Theory]
+    [InlineData(10, "A")]
+    [InlineData(15, "A")]
+    [InlineData(20, "B")]
+    [InlineData(25, "B")]
+    [InlineData(30, "C")]
+    public void ApplyBusinessRules_Should_Assign_Correct_TimeClass(int daysAgo, string expectedClass)
+    {
+        var products = new List<Product>
+    {
+        new Product
+        {
+            ProductId = 1,
+            ProductName = "Producto Test",
+            Rating = 4,
+            LastModified = DateTime.Now.AddDays(-daysAgo)
+        }
+    };
+
+        var domain = new ProductDomain();
+
+        var result = domain.ApplyBusinessRules(products).First();
+
+        Assert.Equal(expectedClass, result.TimeClass);
     }
 }
