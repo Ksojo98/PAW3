@@ -72,10 +72,9 @@ public class ProductBusiness(IRepositoryProduct repositoryProduct) : IProductBus
         productList = domain.ApplyBusinessRules(productList).ToList();
 
         productList = new ProductFluent(productList)
-            .ApplyRatingClass()
-            .ApplyTimeClass()
-            .Build()
-            .ToList();
+    .ApplyBusinessRules()
+    .Build()
+    .ToList();
 
         if (!hasId)
         {
