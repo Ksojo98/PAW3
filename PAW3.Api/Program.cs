@@ -3,6 +3,8 @@ using PAW3.Core.BusinessLogic;
 using PAW3.Core.Services;
 using PAW3.Data.MSSQL;
 using PAW3.Data.Repositories;
+using PAW3.Architecture;
+using PAW3.Architecture.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -51,6 +53,8 @@ builder.Services.AddScoped<IRepositoryFoodItem, RepositoryFoodItem>();
 
 // Register Services
 builder.Services.AddTransient<IEntityOperationService, EntityOperationService>();
+
+builder.Services.AddScoped<IFormatHelper, FormatHelper>();
 
 var app = builder.Build();
 
