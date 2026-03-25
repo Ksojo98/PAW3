@@ -7,18 +7,17 @@ using System.Threading.Tasks;
 
 namespace PAW3.Architecture.Helpers
 {
-        public interface IDatesHelper
-        {
-            string FormatDate(DateTime date, string format = "yyyy-MM-dd", CultureInfo? culture = null);
-            string FormatDateLong(DateTime date, CultureInfo? culture = null);
-            string TimeAgo(DateTime date);
-            int CalculateAge(DateTime birthDate);
-            string ToRelativeDate(DateTime date);
-        }
-        public class DatesHelper : IDatesHelper
-        {
-
-            public readonly CultureInfo _defaultCulture;
+    public interface IDatesHelper
+    {
+        string FormatDate(DateTime date, string format = "yyyy-MM-dd", CultureInfo? culture = null);
+        string FormatDateLong(DateTime date, CultureInfo? culture = null);
+        string TimeAgo(DateTime date);
+        int CalculateAge(DateTime birthDate);
+        string ToRelativeDate(DateTime date);
+    }
+    public class DatesHelper : IDatesHelper
+    {
+        public readonly CultureInfo _defaultCulture;
 
         public DatesHelper()
         {

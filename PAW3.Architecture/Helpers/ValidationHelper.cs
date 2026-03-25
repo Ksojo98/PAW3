@@ -12,7 +12,7 @@ namespace PAW3.Architecture.Helpers
         bool TryParseDate(string input, out DateTime result);
         bool IsValidEmail(string email);
     }
-    public class ValidationHelper
+    public class ValidationHelper : IValidationHelper
     {
         public bool TryParseDate(string input, out DateTime result)
         {

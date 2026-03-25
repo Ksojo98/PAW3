@@ -1,4 +1,7 @@
-﻿@{
+﻿@using PAW3.Architecture.Helpers
+@inject FormatHelper Format
+
+@{
     ViewData["Title"] = "Dashboard";
 }
 
@@ -85,3 +88,22 @@
         </div>
     </div>
 </div>
+
+<hr />
+
+@{
+    DateTime date;
+	var esValida = Format.TryParseDate("2026-3-24", out date);
+}
+
+<h2>Usando Format Helper</h2>
+<address>
+    <strong>Fecha actual:</strong> @Format.FormatDate(DateTime.Now)<br />
+    <strong>Texto en Title Case:</strong> @Format.ToTitleCase("progra avanzada web")<br />
+    <strong>¿La fecha es válida?</strong> @esValida<br />
+    <strong>Teléfono formateado:</strong> @Format.FormatPhone("60658745")<br />
+	<strong>Moneda formateada:</strong> @Format.FormatCurrency(1500)<br />
+</address>
+
+
+

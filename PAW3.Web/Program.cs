@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PAW3.Architecture;
+using PAW3.Architecture.Helpers;
 using PAW3.Core.Services;
 using PAW3.Web.Data;
 
@@ -34,6 +35,14 @@ builder.Services.AddSession(options =>
 builder.Services.AddScoped<IRestProvider, RestProvider>();
 // Register Services
 builder.Services.AddTransient<IEntityOperationService, EntityOperationService>();
+builder.Services.AddScoped<IDatesHelper, DatesHelper>();
+builder.Services.AddScoped<IGeneralHelper, GeneralHelper>();
+builder.Services.AddScoped<INumbersHelper, NumbersHelper>();
+builder.Services.AddScoped<ITextHelper, TextHelper>();
+builder.Services.AddScoped<IValidationHelper, ValidationHelper>();
+
+builder.Services.AddScoped<FormatHelper>();
+
 
 var app = builder.Build();
 

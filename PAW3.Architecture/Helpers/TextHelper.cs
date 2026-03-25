@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace PAW3.Architecture.Helpers
@@ -16,7 +17,6 @@ namespace PAW3.Architecture.Helpers
         bool IsNullOrEmpty(string? input);
     }
    
-
     public class TextHelper : ITextHelper
     {
         private readonly CultureInfo _defaultCulture;
@@ -55,12 +55,12 @@ namespace PAW3.Architecture.Helpers
 
         public string Slugify(string input)
         {
-            throw new NotImplementedException();
+            input = RemoveAccents(input).ToLower();
+            input = Regex.Replace(input, @"[^a-z0-9\s-]", "");
+            input = Regex.Replace(input, @"\s+", "-").Trim('-');
+            return input;
         }
 
-        public bool IsNullOrEmpty(string? input)
-        {
-            throw new NotImplementedException();
-        }
+        public bool IsNullOrEmpty(string? input) => string.IsNullOrEmpty(input);
     }
 }
