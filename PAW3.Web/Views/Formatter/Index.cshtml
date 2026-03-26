@@ -1,0 +1,109 @@
+﻿@{
+  ViewData["Title"] = "Formatters";
+}
+
+<h2>Formatters Test</h2>
+
+<div>
+  <h3>To Title Case</h3>
+  <input type="text" id="wording" placeholder="Texto..." />
+  <button onclick="callToTitleCase()">Convert</button>
+  <p id="titleResult"></p>
+</div>
+
+<hr />
+
+<div>
+  <h3>Calculate Age</h3>
+  <input type="date" id="bday" />
+  <button onclick="callCalculateAge()">Calcular</button>
+  <p id="ageResult"></p>
+</div>
+
+<hr />
+
+<div>
+  <h3>Email Validation</h3>
+  <input type="text" id="email" placeholder="email..." />
+  <button onclick="callValidateEmail()">Validar</button>
+  <p id="emailResult"></p>
+</div>
+
+<hr />
+
+<div>
+  <h3>Format Phone</h3>
+  <input type="text" id="phoneNumber" placeholder="Número..." />
+  <button onclick="callFormatPhone()">Formatear</button>
+  <p id="phoneResult"></p>
+</div>
+
+<hr />
+
+<div>
+  <h3>Format Percentage</h3>
+  <input type="number" id="percentageNumber" step="any" placeholder="Número..." />
+  <input type="number" id="decimals" placeholder="Decimales..." />
+  <button onclick="callFormatPercentage()">Formatear</button>
+  <p id="percentageResult"></p>
+</div>
+
+<script>
+  const BASE_URL = "https://localhost:7180";
+
+  async function callToTitleCase() {
+      const wording = document.getElementById("wording").value;
+
+      const res = await fetch(`${BASE_URL}/string/ToTitleCase?wording=${encodeURIComponent(wording)}`);
+      const data = await res.text(); 
+
+      document.getElementById("titleResult").innerText = data;
+  }
+
+  async function callCalculateAge() {
+      const bday = document.getElementById("bday").value;
+
+      const res = await fetch(`${BASE_URL}/dates/CalculateAge?bday=${bday}`);
+      const data = await res.json();
+
+      document.getElementById("ageResult").innerText = `Edad: ${data.age}`;
+  }
+
+  async function callValidateEmail() {
+      const email = document.getElementById("email").value;
+
+      const res = await fetch(`${BASE_URL}/validations/isEmailValid?email=${encodeURIComponent(email)}`);
+      const data = await res.json();
+
+      document.getElementById("emailResult").innerText = data ? "Válido" : "Inválido";
+  }
+
+  async function callFormatPhone() {
+        const phoneNumber = document.getElementById("phoneNumber").value;
+
+        const res = await fetch(`${BASE_URL}/general/FormatPhone?phoneNumber=${encodeURIComponent(phoneNumber)}`);
+
+        if (!res.ok) {
+            document.getElementById("phoneResult").innerText = "Error al formatear el teléfono";
+            return;
+        }
+
+        const data = await res.text();
+        document.getElementById("phoneResult").innerText = data;
+    }
+
+    async function callFormatPercentage() {
+        const number = document.getElementById("percentageNumber").value;
+        const decimals = document.getElementById("decimals").value;
+
+        const res = await fetch(`${BASE_URL}/number/FormatPercentage?number=${encodeURIComponent(number)}&decimals=${encodeURIComponent(decimals)}`);
+
+        if (!res.ok) {
+            document.getElementById("percentageResult").innerText = "Error al formatear el porcentaje";
+            return;
+        }
+
+        const data = await res.text();
+        document.getElementById("percentageResult").innerText = data;
+    }
+</script>

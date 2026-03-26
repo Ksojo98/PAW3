@@ -13,6 +13,18 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddCors(options =>
+{
+  options.AddPolicy("AllowAll",
+      policy =>
+      {
+        policy.AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+      });
+});
+
+
 
 // Configure DbContext with connection string from appsettings
 builder.Services.AddDbContext<ProductDbContext>(options =>
@@ -50,6 +62,14 @@ builder.Services.AddScoped<IRepositoryUserAction, RepositoryUserAction>();
 builder.Services.AddScoped<IRepositoryUserRole, RepositoryUserRole>();
 builder.Services.AddScoped<IRepositoryFoodItem, RepositoryFoodItem>();
 
+// Register Formatters
+builder.Services.AddScoped<IDatesHelper, DatesHelper>();
+builder.Services.AddScoped<IGeneralHelper, GeneralHelper>();
+builder.Services.AddScoped<INumbersHelper, NumbersHelper>();
+builder.Services.AddScoped<ITextHelper, TextHelper>();
+builder.Services.AddScoped<IValidationHelper, ValidationHelper>();
+
+
 // Register Services
 builder.Services.AddTransient<IEntityOperationService, EntityOperationService>();
 
@@ -63,7 +83,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
